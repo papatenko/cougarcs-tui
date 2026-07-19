@@ -1,0 +1,7 @@
+node_modules
+out
+dist
+*.tgz
+frame.json
+*.tsbuildinfo
+.DS_Store
