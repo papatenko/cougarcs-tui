@@ -25,23 +25,21 @@ export interface Agent {
   name: string // internal id (keys the glyph/tile mapping)
   label: string // display name shown on the branch box
   task: string // one-line description shown inside the box
+  accent: string // branch color used by the live CougarCS website
   glyph: string // single-cell branch glyph (E900-E903)
   tileBase: number // base codepoint of the TILE_G x TILE_G big-icon block
 }
 
 export const agents: Agent[] = [
-  { name: "main", label: "main", task: "running the show", glyph: GLYPH.main, tileBase: TILE_BASE.main },
-  { name: "webdev", label: "webdev", task: "building the site", glyph: GLYPH.webdev, tileBase: TILE_BASE.webdev },
-  { name: "infosec", label: "cybersec", task: "hardening our security", glyph: GLYPH.infosec, tileBase: TILE_BASE.infosec },
-  { name: "tutoring", label: "tutoring", task: "teaching our cougars", glyph: GLYPH.tutoring, tileBase: TILE_BASE.tutoring },
+  { name: "main", label: "CougarCS", task: "running the show", accent: "#c80f2e", glyph: GLYPH.main, tileBase: TILE_BASE.main },
+  { name: "webdev", label: "Web Dev.", task: "building websites", accent: "#6f4feb", glyph: GLYPH.webdev, tileBase: TILE_BASE.webdev },
+  { name: "infosec", label: "Info. Sec", task: "protecting our data", accent: "#05acf6", glyph: GLYPH.infosec, tileBase: TILE_BASE.infosec },
+  { name: "tutoring", label: "Tutoring", task: "peer teaching with students", accent: "#10c054", glyph: GLYPH.tutoring, tileBase: TILE_BASE.tutoring },
 ]
 
 // Nerd-font glyphs used as UI chrome (from the base JetBrainsMono NF, present in
 // the patched CougarCS Icons font too, so both the live TUI and the PNG render them).
 export const CAT_GLYPH = String.fromCodePoint(0xf011b) // nf-md-cat  🐱  (the "cougaring" mascot)
-export const WIN_BUTTONS = "    " // codicon  —  □  ✕  (min/max/close, Windows order)
-export const WIN_TITLE = "cougarminal.exe"
-
 // The TILE_G glyphs making up printed row r (0 = top) of an agent's big icon.
 export function tileRow(a: Agent, r: number): string {
   let s = ""
@@ -51,13 +49,13 @@ export function tileRow(a: Agent, r: number): string {
 
 export const copy = {
   user: "ship the fall showcase",
-  bot: "got it, deploying agents",
+  bot: "bringing every branch online",
   cougaring: "cougaring",
   wordmark: "C O U G A R C S",
 }
 
 export const layout = {
-  windowWidth: 72, // wide enough for the COUGAR CS ANSI-Shadow banner (~70 cols)
+  windowWidth: 96, // wide enough for the enlarged COUGAR CS banner
   windowPad: 2,
   iconGap: 3, // spaces between branch icons on the deploy row (0 = flush)
 }

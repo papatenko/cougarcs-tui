@@ -19,20 +19,20 @@ function rebuild() {
   root = buildScene(renderer, state)
 }
 
-// Deploy the branches one by one, then hold.
-const deploy = setInterval(() => {
+// Bring the branches online one by one, then hold.
+const bringOnline = setInterval(() => {
   if (state.revealed < agents.length) {
     state.revealed++
     rebuild()
   } else {
-    clearInterval(deploy)
+    clearInterval(bringOnline)
   }
 }, 650)
 
 renderer.keyInput.on("keypress", (key: any) => {
   const name = key?.name ?? key
   if (name === "q" || name === "escape") {
-    clearInterval(deploy)
+    clearInterval(bringOnline)
     renderer.stop?.()
     process.exit(0)
   }

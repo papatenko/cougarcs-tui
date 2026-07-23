@@ -1,21 +1,18 @@
-// The COUGAR CS banner for the top-left header (ANSI Shadow figlet style).
-//
-// EDIT ME BY HAND. It's plain terminal text with a built-in stepped shadow
-// (the ╗ ╝ ║ ═ glyphs). What you see here is exactly what prints. Keep the lines
-// as-is or regenerate with: figlet -f "ANSI Shadow" "COUGAR CS".
+// The COUGAR CS banner for the top-left header (Star Wars FIGlet style).
+// Wide, open letterforms keep the identity distinct from Claude Code's boxed
+// ANSI Shadow wordmark. Regenerate with: figlet -f starwars -w 200 "COUGAR CS".
 export const WORDMARK: string[] = [
-  " ██████╗ ██████╗ ██╗   ██╗ ██████╗  █████╗ ██████╗      ██████╗███████╗",
-  "██╔════╝██╔═══██╗██║   ██║██╔════╝ ██╔══██╗██╔══██╗    ██╔════╝██╔════╝",
-  "██║     ██║   ██║██║   ██║██║  ███╗███████║██████╔╝    ██║     ███████╗",
-  "██║     ██║   ██║██║   ██║██║   ██║██╔══██║██╔══██╗    ██║     ╚════██║",
-  "╚██████╗╚██████╔╝╚██████╔╝╚██████╔╝██║  ██║██║  ██║    ╚██████╗███████║",
-  " ╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝╚══════╝",
+  "  ______   ______    __    __    _______      ___      .______           ______     _______.",
+  " /      | /  __  \\  |  |  |  |  /  _____|    /   \\     |   _  \\         /      |   /       |",
+  "|  ,----'|  |  |  | |  |  |  | |  |  __     /  ^  \\    |  |_)  |       |  ,----'  |   (----`",
+  "|  |     |  |  |  | |  |  |  | |  | |_ |   /  /_\\  \\   |      /        |  |        \\   \\",
+  "|  `----.|  `--'  | |  `--'  | |  |__| |  /  _____  \\  |  |\\  \\----.   |  `----.----)   |",
+  " \\______| \\______/   \\______/   \\______| /__/     \\__\\ | _| `._____|    \\______|_______/",
 ]
 
 export const WORDMARK_WIDTH = Math.max(...WORDMARK.map((l) => l.length))
 
-// Which characters are the "shadow" of the figlet (everything that isn't the
-// solid █ fill). Used for optional two-tone coloring.
+// Retained for consumers that optionally render a two-tone wordmark.
 export function isShadowChar(ch: string): boolean {
-  return ch !== " " && ch !== "█"
+  return ch !== " " && ch !== "_"
 }

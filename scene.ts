@@ -1,10 +1,10 @@
 // Renders the cougarcs.agent screen from config + theme.
-// Layout: window buttons, COUGAR CS banner, a user prompt, the bot deploying
-// agents, a branch fan-out (logos -> connectors -> labelled boxes), a "cougaring"
+// Layout: COUGAR CS banner, a user prompt, the branches coming online, a branch
+// fan-out (logos -> connectors -> labelled boxes), a "cougaring"
 // cat status, and a blank input line. Transparent background throughout.
 import { BoxRenderable, TextRenderable, RGBA, type CliRenderer } from "@opentui/core"
 import { theme } from "./theme"
-import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH, WIN_BUTTONS, WIN_TITLE } from "./config"
+import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH } from "./config"
 import { WORDMARK } from "./wordmark"
 // sprite.ts (the pixel-cougar mascot) is kept for later use, not rendered here.
 
@@ -37,37 +37,23 @@ function dots(state: SceneState): string {
 }
 
 export function buildScene(r: CliRenderer, state: SceneState) {
+  const contentWidth = WIN_W + layout.windowPad * 2
   const root = new BoxRenderable(r, {
     flexDirection: "column",
     padding: 1,
     backgroundColor: TRANSPARENT,
-    width: WIN_W + layout.windowPad * 2 + 2,
+    width: contentWidth,
   })
   r.root.add(root)
 
-  const winWidth = WIN_W + layout.windowPad * 2 + 2
-
-  // ---- title bar OUTSIDE the window: "cougarminal.exe" (left) + controls (right) ----
-  const titleBar = new BoxRenderable(r, {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: winWidth,
-    paddingBottom: 1,
-  })
-  root.add(titleBar)
-  titleBar.add(txt(r, WIN_TITLE, theme.dim))
-  titleBar.add(txt(r, WIN_BUTTONS, theme.dim))
-
-  const win = new BoxRenderable(r, {
+  // Native terminal content: no simulated title bar or window border.
+  const content = new BoxRenderable(r, {
     flexDirection: "column",
-    borderStyle: "rounded",
-    border: true,
-    borderColor: theme.hair,
     backgroundColor: TRANSPARENT,
     padding: layout.windowPad,
-    width: winWidth,
+    width: contentWidth,
   })
-  root.add(win)
+  root.add(content)
 
   // ---- COUGAR CS wordmark banner ----
   const banner = new BoxRenderable(r, {
@@ -76,7 +62,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     paddingTop: 1,
     paddingBottom: 1,
   })
-  win.add(banner)
+  content.add(banner)
   for (const line of WORDMARK) banner.add(txt(r, line, theme.red))
 
   // ---- user prompt (right-aligned) ----
@@ -85,20 +71,20 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     justifyContent: "flex-end",
     width: WIN_W,
   })
-  win.add(userRow)
+  content.add(userRow)
   userRow.add(txt(r, `${copy.user}  `, theme.text))
   userRow.add(txt(r, "›", theme.faint))
 
-  win.add(txt(r, "", theme.dim, { height: 1 }))
+  content.add(txt(r, "", theme.dim, { height: 1 }))
 
-  // ---- bot line: "got it, deploying agents…" ----
+  // ---- branch status line ----
   const botRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
-  win.add(botRow)
+  content.add(botRow)
   botRow.add(txt(r, "▌ ", theme.red))
   botRow.add(txt(r, copy.bot, theme.text))
   botRow.add(txt(r, dots(state), theme.dim))
 
-  win.add(txt(r, "", theme.dim, { height: 1 }))
+  content.add(txt(r, "", theme.dim, { height: 1 }))
 
   // ---- branch fan-out: logos -> connectors -> labelled boxes ----
   const N = agents.length
@@ -107,7 +93,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     alignItems: "flex-start",
     width: WIN_W,
   })
-  win.add(branchRow)
+  content.add(branchRow)
 
   // left column: the big TILE_G x TILE_G tiled head per branch (3 rows each)
   const logosCol = new BoxRenderable(r, { flexDirection: "column", width: LOGO_W })
@@ -115,7 +101,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   agents.forEach((a, i) => {
     const online = i < state.revealed
     for (let row = 0; row < TILE_G; row++) {
-      logosCol.add(txt(r, tileRow(a, row), online ? theme.red : theme.faint))
+      logosCol.add(txt(r, tileRow(a, row), online ? a.accent : theme.faint))
     }
   })
 
@@ -129,7 +115,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     let s = ""
     if (isCenter) s = (i === N - 1 ? "╰" : "├") + "──▶"
     else if (rr > 1 && rr < N * BOX_H - BOX_H + 1) s = "│"
-    connCol.add(txt(r, s, online ? theme.red : theme.faint))
+    connCol.add(txt(r, s, online ? agents[i].accent : theme.faint))
   }
 
   // right column: one bordered box per branch (transparent fill)
@@ -137,7 +123,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   branchRow.add(boxesCol)
   agents.forEach((a, i) => {
     const online = i < state.revealed
-    const accent = online ? theme.red : theme.faint
+    const accent = online ? a.accent : theme.faint
     const box = new BoxRenderable(r, {
       flexDirection: "column",
       borderStyle: "rounded",
@@ -154,29 +140,29 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     box.add(txt(r, a.task, online ? theme.text : theme.faint))
   })
 
-  win.add(txt(r, "", theme.dim, { height: 1 }))
+  content.add(txt(r, "", theme.dim, { height: 1 }))
 
   // ---- "cougaring" cat status ----
   const catRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
-  win.add(catRow)
+  content.add(catRow)
   catRow.add(txt(r, `${CAT_GLYPH}  `, theme.red))
   catRow.add(txt(r, copy.cougaring, theme.red))
   catRow.add(txt(r, dots(state), theme.red))
 
-  win.add(txt(r, "", theme.dim, { height: 1 }))
+  content.add(txt(r, "", theme.dim, { height: 1 }))
 
   // ---- blank input line with blinking caret ----
   const promptRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
-  win.add(promptRow)
+  content.add(promptRow)
   promptRow.add(txt(r, "❯ ", theme.red))
   promptRow.add(txt(r, state.caret ? "█" : " ", theme.text))
 
-  // ---- grid of rectangles below the window: row of 3, then row of 2 ----
+  // ---- sponsor grid below the main terminal composition ----
   const WHITE = "#ffffff"
   const GRID_GAP = 2
   const CELL_H = 4
   function gridRow(count: number) {
-    const row = new BoxRenderable(r, { flexDirection: "row", width: winWidth, gap: GRID_GAP })
+    const row = new BoxRenderable(r, { flexDirection: "row", width: contentWidth, gap: GRID_GAP })
     for (let i = 0; i < count; i++) {
       row.add(new BoxRenderable(r, {
         borderStyle: "rounded",
@@ -191,7 +177,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   }
   const grid = new BoxRenderable(r, {
     flexDirection: "column",
-    width: winWidth,
+    width: contentWidth,
     paddingTop: 1,
     gap: GRID_GAP,
   })
@@ -199,7 +185,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   const sponsorLabel = new BoxRenderable(r, {
     flexDirection: "row",
     justifyContent: "center",
-    width: winWidth,
+    width: contentWidth,
     paddingBottom: 1,
   })
   grid.add(sponsorLabel)
