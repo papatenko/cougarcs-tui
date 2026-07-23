@@ -24,9 +24,11 @@ export const WIN_W = layout.windowWidth
 
 // Branch fan-out geometry
 const BOX_H = 3 // each branch box is 3 rows tall (border, content, border)
+const BRANCH_H = TILE_G // rows per branch slot (the tiled head is TILE_G tall)
 const LOGO_W = TILE_G + 1 // big tiled head (TILE_G wide) + a gap column
 const CONN_W = 6 // connector column width
-const BOX_W = WIN_W - LOGO_W - CONN_W
+const BODY_W = WIN_W - 1 // everything but the title sits one column narrower
+const BOX_W = BODY_W - LOGO_W - CONN_W
 
 function txt(r: CliRenderer, content: string, fg: string | RGBA, opts: any = {}) {
   return new TextRenderable(r, { content, fg, ...opts })
@@ -69,7 +71,8 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   const userRow = new BoxRenderable(r, {
     flexDirection: "row",
     justifyContent: "flex-end",
-    width: WIN_W,
+    width: BODY_W,
+    backgroundColor: "#1f1f1f", // dark gray bar; keeps white prompt text legible
   })
   content.add(userRow)
   userRow.add(txt(r, `${copy.user}  `, theme.text))
@@ -78,9 +81,9 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   content.add(txt(r, "", theme.dim, { height: 1 }))
 
   // ---- branch status line ----
-  const botRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
+  const botRow = new BoxRenderable(r, { flexDirection: "row", width: BODY_W })
   content.add(botRow)
-  botRow.add(txt(r, "▌ ", theme.red))
+  botRow.add(txt(r, "◆ ", theme.red))
   botRow.add(txt(r, copy.bot, theme.text))
   botRow.add(txt(r, dots(state), theme.dim))
 
@@ -91,13 +94,25 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   const branchRow = new BoxRenderable(r, {
     flexDirection: "row",
     alignItems: "flex-start",
-    width: WIN_W,
+    width: BODY_W,
   })
   content.add(branchRow)
 
-  // left column: the big TILE_G x TILE_G tiled head per branch (3 rows each)
+  // left column: a trunk that tees right toward each icon centre
+  const connCol = new BoxRenderable(r, { flexDirection: "column", width: CONN_W })
+  for (let rr = 0; rr < N * BRANCH_H; rr++) {
+    const i = Math.floor(rr / BRANCH_H)
+    const isCenter = rr % BRANCH_H === Math.floor(BRANCH_H / 2)
+    const online = i < state.revealed
+    let s = ""
+    const lastCenter = (N - 1) * BRANCH_H + Math.floor(BRANCH_H / 2)
+    if (isCenter) s = (i === N - 1 ? "╰" : "├") + "───▶"
+    else if (rr < lastCenter) s = "│" // trunk runs from the top row down to the last tee
+    connCol.add(txt(r, s, online ? agents[i].accent : theme.faint))
+  }
+
+  // middle column: the big TILE_G x TILE_G tiled head per branch (TILE_G rows each)
   const logosCol = new BoxRenderable(r, { flexDirection: "column", width: LOGO_W })
-  branchRow.add(logosCol)
   agents.forEach((a, i) => {
     const online = i < state.revealed
     for (let row = 0; row < TILE_G; row++) {
@@ -105,22 +120,9 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     }
   })
 
-  // middle column: a trunk that tees to each box centre
-  const connCol = new BoxRenderable(r, { flexDirection: "column", width: CONN_W })
-  branchRow.add(connCol)
-  for (let rr = 0; rr < N * BOX_H; rr++) {
-    const i = Math.floor(rr / BOX_H)
-    const isCenter = rr % BOX_H === 1
-    const online = i < state.revealed
-    let s = ""
-    if (isCenter) s = (i === N - 1 ? "╰" : "├") + "──▶"
-    else if (rr > 1 && rr < N * BOX_H - BOX_H + 1) s = "│"
-    connCol.add(txt(r, s, online ? agents[i].accent : theme.faint))
-  }
-
-  // right column: one bordered box per branch (transparent fill)
+  // right column: one bordered box per branch, centered in a BRANCH_H-row slot
   const boxesCol = new BoxRenderable(r, { flexDirection: "column", width: BOX_W })
-  branchRow.add(boxesCol)
+  const boxMargin = Math.floor((BRANCH_H - BOX_H) / 2) // blank rows above/below box
   agents.forEach((a, i) => {
     const online = i < state.revealed
     const accent = online ? a.accent : theme.faint
@@ -135,27 +137,42 @@ export function buildScene(r: CliRenderer, state: SceneState) {
       height: BOX_H,
       width: BOX_W,
       paddingLeft: 1,
+      marginTop: boxMargin,
+      marginBottom: boxMargin,
     })
     boxesCol.add(box)
-    box.add(txt(r, a.task, online ? theme.text : theme.faint))
+    box.add(txt(r, a.task, accent))
   })
 
-  content.add(txt(r, "", theme.dim, { height: 1 }))
-
-  // ---- "cougaring" cat status ----
-  const catRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
-  content.add(catRow)
-  catRow.add(txt(r, `${CAT_GLYPH}  `, theme.red))
-  catRow.add(txt(r, copy.cougaring, theme.red))
-  catRow.add(txt(r, dots(state), theme.red))
+  // add in visual order: arrows, then icons, then boxes
+  branchRow.add(connCol)
+  branchRow.add(logosCol)
+  branchRow.add(boxesCol)
 
   content.add(txt(r, "", theme.dim, { height: 1 }))
+
+  // ---- cougaring tagline visor, right above the chat field ----
+  content.add(new BoxRenderable(r, {
+    border: ["top"],
+    borderColor: theme.red,
+    title: `  ${CAT_GLYPH}  ${copy.status} ${dots(state)} `,
+    titleColor: theme.red,
+    titleAlignment: "left",
+    width: BODY_W,
+  }))
 
   // ---- blank input line with blinking caret ----
-  const promptRow = new BoxRenderable(r, { flexDirection: "row", width: WIN_W })
+  const promptRow = new BoxRenderable(r, { flexDirection: "row", width: BODY_W })
   content.add(promptRow)
   promptRow.add(txt(r, "❯ ", theme.red))
   promptRow.add(txt(r, state.caret ? "█" : " ", theme.text))
+
+  // ---- bottom visor: a plain closing rule ----
+  content.add(new BoxRenderable(r, {
+    border: ["top"],
+    borderColor: theme.red,
+    width: BODY_W,
+  }))
 
   // ---- sponsor grid below the main terminal composition ----
   const WHITE = "#ffffff"

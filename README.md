@@ -35,7 +35,7 @@ fontforge -script patch_font.py
 ```
 
 To see the glyphs in your own terminal live, install the font, then map the
-codepoints to it (they sit at U+E900-E948, which also collide with stock Nerd
+codepoints to it (they sit at U+E900-E988, which also collide with stock Nerd
 Font glyphs, so you must point that range at "CougarCS Icons"):
 
 ```bash
@@ -47,7 +47,7 @@ fc-cache -f
 or restart kitty:
 
 ```
-symbol_map U+E900-U+E948 CougarCS Icons
+symbol_map U+E900-U+E988 CougarCS Icons
 ```
 
 This leaves your normal font untouched and only pulls those four glyphs from the

@@ -1,13 +1,12 @@
-// The COUGAR CS banner for the top-left header (Star Wars FIGlet style).
-// Wide, open letterforms keep the identity distinct from Claude Code's boxed
-// ANSI Shadow wordmark. Regenerate with: figlet -f starwars -w 200 "COUGAR CS".
+// The COUGARCS banner for the top-left header (solid full-block style).
+// Bold single-height glyphs keep the identity distinct from Claude Code's
+// boxed ANSI Shadow wordmark.
 export const WORDMARK: string[] = [
-  "  ______   ______    __    __    _______      ___      .______           ______     _______.",
-  " /      | /  __  \\  |  |  |  |  /  _____|    /   \\     |   _  \\         /      |   /       |",
-  "|  ,----'|  |  |  | |  |  |  | |  |  __     /  ^  \\    |  |_)  |       |  ,----'  |   (----`",
-  "|  |     |  |  |  | |  |  |  | |  | |_ |   /  /_\\  \\   |      /        |  |        \\   \\",
-  "|  `----.|  `--'  | |  `--'  | |  |__| |  /  _____  \\  |  |\\  \\----.   |  `----.----)   |",
-  " \\______| \\______/   \\______/   \\______| /__/     \\__\\ | _| `._____|    \\______|_______/",
+  " ██████  ██████  ██    ██  ██████   █████  ██████   ██████ ███████ ",
+  "██      ██    ██ ██    ██ ██       ██   ██ ██   ██ ██      ██      ",
+  "██      ██    ██ ██    ██ ██   ███ ███████ ██████  ██      ███████ ",
+  "██      ██    ██ ██    ██ ██    ██ ██   ██ ██   ██ ██           ██ ",
+  " ██████  ██████   ██████   ██████  ██   ██ ██   ██  ██████ ███████ ",
 ]
 
 export const WORDMARK_WIDTH = Math.max(...WORDMARK.map((l) => l.length))

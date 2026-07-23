@@ -58,7 +58,7 @@ for cp, (name, fn) in GLYPHS.items():
 # Tile codepoints (row-major, r=0 is the TOP printed row):
 #   main E910+, webdev E920+, infosec E930+, tutoring E940+
 # ---------------------------------------------------------------------------
-G = 3
+G = 5
 cellW = adv
 # The terminal CELL height is winAscent+winDescent, NOT the em. Tiling on the em
 # leaves blank padding bands between rows (visible seams). Tile on the true cell
@@ -71,11 +71,12 @@ cellH = winAsc + winDesc         # 1320 : one terminal line
 OV = 24
 CLIP_LO = -winDesc - OV
 CLIP_HI = winAsc + OV
+# Bases spaced 0x20 apart: G*G = 25 glyphs per branch. Must match config.ts.
 TILES = {
     0xE910: ("Property 1=Red.svg", "main"),
-    0xE920: ("Property 1=Webdev Purpl.svg", "webdev"),
-    0xE930: ("Property 1=InfoSec Blue.svg", "infosec"),
-    0xE940: ("CougarCS Head - Filled (White).svg", "tutoring"),
+    0xE930: ("Property 1=Webdev Purpl.svg", "webdev"),
+    0xE950: ("Property 1=InfoSec Blue.svg", "infosec"),
+    0xE970: ("CougarCS Head - Filled (White).svg", "tutoring"),
 }
 FILL = 0.98  # how much of the block the head fills (preserve aspect)
 
