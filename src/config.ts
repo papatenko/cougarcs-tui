@@ -1,7 +1,7 @@
 // Content + shape. Redesigns happen here, not in scene.ts.
 //
 // The branch icons are REAL font glyphs living in the "CougarCS Icons" font
-// (fonts/CougarCSIcons-Regular.ttf), mapped into the Private Use Area.
+// (assets/fonts/CougarCSIcons-Regular.ttf), mapped into the Private Use Area.
 // They are single characters, not ASCII art.
 
 export const GLYPH = {

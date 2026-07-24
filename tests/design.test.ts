@@ -1,8 +1,8 @@
 import { test } from "node:test"
 import { deepEqual, doesNotMatch, equal, ok } from "node:assert/strict"
 import { readFile } from "node:fs/promises"
-import { agents, copy } from "./config.ts"
-import { WORDMARK, WORDMARK_WIDTH } from "./wordmark.ts"
+import { agents, copy } from "../src/config.ts"
+import { WORDMARK, WORDMARK_WIDTH } from "../src/wordmark.ts"
 
 const expectedBranches = [
   { name: "main", label: "main", accent: "#c80f2e", task: "running the show ..." },
@@ -31,7 +31,7 @@ test("uses a compact non-boxed wordmark", () => {
 })
 
 test("scene has no simulated terminal window chrome", async () => {
-  const scene = await readFile(new URL("./scene.ts", import.meta.url), "utf8")
+  const scene = await readFile(new URL("../src/scene.ts", import.meta.url), "utf8")
   doesNotMatch(scene, /WIN_TITLE|WIN_BUTTONS/)
   doesNotMatch(scene, /borderColor:\s*theme\.hair/)
   ok(scene.includes("online ? a.accent : theme.faint"))

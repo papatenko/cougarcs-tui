@@ -8,8 +8,8 @@ what kitty renders."""
 import json, os
 from PIL import Image, ImageDraw, ImageFont
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-FONT = os.path.join(HERE, "fonts", "CougarCSIcons-Regular.ttf")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FONT = os.path.join(ROOT, "assets", "fonts", "CougarCSIcons-Regular.ttf")
 
 # JetBrainsMono / CougarCS Icons vertical metrics (font units, em=1000)
 EM = 1000
@@ -24,7 +24,7 @@ font = ImageFont.truetype(FONT, FONT_PX)
 cw = int(round(font.getlength("0")))                 # monospace advance, px
 baseline = int(round(CELL_H * WIN_ASC / CELL_UNITS))  # baseline from cell top
 
-frame = json.load(open(os.path.join(HERE, "frame.json")))
+frame = json.load(open(os.path.join(ROOT, "frame.json")))
 cols, rows = frame["cols"], frame["rows"]
 W, H = cw * cols, CELL_H * rows
 img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -69,5 +69,7 @@ if bbox:
 pad = 28
 out = Image.new("RGBA", (img.width + pad * 2, img.height + pad * 2), (0, 0, 0, 0))
 out.alpha_composite(img, (pad, pad))
-out.save(os.path.join(HERE, "cougarcs-tui.png"))
-print(f"wrote cougarcs-tui.png ({out.width}x{out.height})")
+OUT_DIR = os.path.join(ROOT, "renders")
+os.makedirs(OUT_DIR, exist_ok=True)
+out.save(os.path.join(OUT_DIR, "cougarcs-tui.png"))
+print(f"wrote renders/cougarcs-tui.png ({out.width}x{out.height})")

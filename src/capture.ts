@@ -10,7 +10,7 @@ import { agents, layout } from "./config"
 const revealed = process.argv[2] ? parseInt(process.argv[2], 10) : agents.length
 
 const width = WIN_W + layout.windowPad * 2 + 6
-const height = 60
+const height = 90
 
 const { renderer, renderOnce, captureSpans } = await createTestRenderer({
   width,

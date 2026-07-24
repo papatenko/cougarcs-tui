@@ -6,8 +6,8 @@ import fontforge, psMat, os
 BASE = os.path.expanduser(
     "~/.local/share/fonts/TTF/JetBrainsMonoNerdFontMono-Regular.ttf")
 ICONS = "/home/jkondratenko/Nextcloud/Resources/Design/Icons"
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(OUT_DIR, "fonts", "CougarCSIcons-Regular.ttf")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, "assets", "fonts", "CougarCSIcons-Regular.ttf")
 
 # codepoint -> (glyph name, svg filename)
 GLYPHS = {

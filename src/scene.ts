@@ -6,7 +6,7 @@ import { BoxRenderable, TextRenderable, RGBA, type CliRenderer } from "@opentui/
 import { theme } from "./theme"
 import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH } from "./config"
 import { WORDMARK } from "./wordmark"
-// sprite.ts (the pixel-cougar mascot) is kept for later use, not rendered here.
+import { SPRITE_MAIN } from "./sprite"
 
 // Fully transparent fill: the terminal / shirt colour shows through.
 const TRANSPARENT = RGBA.fromValues(0, 0, 0, 0)
@@ -210,5 +210,111 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   grid.add(gridRow(3))
   grid.add(gridRow(2))
 
+  // ---- BACK OF SHIRT: a CougarCS-ified Claude Code welcome screen ----
+  buildBackSection(r, root, contentWidth)
+
   return root
+}
+
+// The back design: header lines + a star/cloud scene with a moon-"C" and the
+// cougar mascot, framed by dotted rules. Placeholder replica; refined later.
+function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: number) {
+  const W = contentWidth
+  const GRAY_STAR = "#9a9a9a"
+  const GRAY_CLOUD = "#5f5f5f"
+  const GRAY_MOON = "#c8c8c8"
+  const GRAY_DIM = "#8a8a8a"
+
+  const back = new BoxRenderable(r, {
+    flexDirection: "column",
+    width: W,
+    paddingTop: 4, // clear separation from the front design above
+  })
+  root.add(back)
+
+  // header line 1: the shell prompt
+  back.add(txt(r, "C:\\Users\\cougar>cougarcs", theme.text))
+  // header line 2: welcome + version
+  const welcome = new BoxRenderable(r, { flexDirection: "row", width: W })
+  back.add(welcome)
+  welcome.add(txt(r, "Welcome to CougarCS ", theme.red))
+  welcome.add(txt(r, "v0.1.0", GRAY_DIM))
+
+  const rule = () => back.add(txt(r, "·".repeat(W), GRAY_DIM))
+  back.add(txt(r, "", theme.dim, { height: 1 }))
+  rule()
+
+  // ---- scene canvas ----
+  const H = 14
+  const chars: string[][] = Array.from({ length: H }, () => Array(W).fill(" "))
+  const colors: string[][] = Array.from({ length: H }, () => Array(W).fill(""))
+  const stamp = (art: string[], top: number, left: number, color: string) => {
+    art.forEach((line, dy) => {
+      for (let dx = 0; dx < line.length; dx++) {
+        const ch = line[dx]
+        const y = top + dy
+        const x = left + dx
+        if (ch !== " " && y >= 0 && y < H && x >= 0 && x < W) {
+          chars[y][x] = ch
+          colors[y][x] = color
+        }
+      }
+    })
+  }
+
+  // stars
+  const STARS: [number, number][] = [
+    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [11, 44], [12, 18],
+  ]
+  for (const [y, x] of STARS) stamp(["*"], y, x, GRAY_STAR)
+
+  // clouds (stepped light-shade blocks)
+  const CLOUD_A = [
+    "        ░░░░░░        ",
+    "     ░░░░░░░░░░░░     ",
+    "  ░░░░░░░░░░░░░░░░░░  ",
+    "░░░░░░░░░░░░░░░░░░░░░░",
+  ]
+  const CLOUD_B = [
+    "      ░░░░░░      ",
+    "   ░░░░░░░░░░░░   ",
+    "░░░░░░░░░░░░░░░░░░",
+  ]
+  stamp(CLOUD_A, 2, 3, GRAY_CLOUD)
+  stamp(CLOUD_B, 8, 24, GRAY_CLOUD)
+
+  // moon-"C": a dithered crescent, top-right (reads as the CougarCS "C")
+  const MOON = [
+    "    ▒▒▒▒▒▒▒▒    ",
+    "  ▒▒░░░░░░░░▒▒  ",
+    " ▒▒░░░░          ",
+    "▒▒░░░░           ",
+    "▒▒░░░░           ",
+    "▒▒░░░░           ",
+    " ▒▒░░░░          ",
+    "  ▒▒░░░░░░░░▒▒  ",
+    "    ▒▒▒▒▒▒▒▒    ",
+  ]
+  stamp(MOON, 0, W - 17, GRAY_MOON)
+
+  // mascot: the CougarCS cougar, bottom-left (replaces the Claude character)
+  stamp(SPRITE_MAIN, H - SPRITE_MAIN.length, 3, theme.red)
+
+  // render each canvas row, grouping consecutive same-color cells into spans
+  for (let y = 0; y < H; y++) {
+    const rowBox = new BoxRenderable(r, { flexDirection: "row", width: W })
+    back.add(rowBox)
+    let x = 0
+    while (x < W) {
+      const col = colors[y][x]
+      let run = ""
+      while (x < W && colors[y][x] === col) {
+        run += chars[y][x]
+        x++
+      }
+      rowBox.add(txt(r, run, col || GRAY_DIM))
+    }
+  }
+
+  rule()
 }

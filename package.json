@@ -1,12 +1,13 @@
 {
   "name": "cougarcs-tui",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "bun test design.test.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun test tests/design.test.ts",
     "typecheck": "tsc --noEmit",
-    "capture": "bun run capture.ts && python3 rasterize.py"
+    "capture": "bun run src/capture.ts && python3 tools/rasterize.py"
   },
   "devDependencies": { "@types/bun": "latest" },
   "peerDependencies": { "typescript": "^5" },
