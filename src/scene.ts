@@ -7,7 +7,7 @@ import { theme } from "./theme"
 import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH } from "./config"
 import { WORDMARK } from "./wordmark"
 import {
-  COUGAR_PROWL_ASCII,
+  COUGAR_DRAPED_ASCII,
   MOON_ASCII,
   CLOUD_LARGE_ASCII,
   CLOUD_SMALL_ASCII,
@@ -187,22 +187,15 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   const grid = new BoxRenderable(r, {
     flexDirection: "column",
     width: contentWidth,
-    paddingTop: 1,
   })
   root.add(grid)
-  const sponsorLabel = new BoxRenderable(r, {
-    flexDirection: "row",
-    width: contentWidth,
-  })
-  grid.add(sponsorLabel)
-  sponsorLabel.add(txt(r, "SPONSORED BY:", theme.red))
-  grid.add(txt(r, "", theme.dim, { height: 1 })) // gap between label and boxes
 
   // Sponsor logos as an ASCII canvas: rounded boxes with circuit-style wires
   // (traces off every side ending in ○ pads) drawn together for full control.
   const SW = contentWidth
-  const SH = 22
+  const SH = 23
   const sc: string[][] = Array.from({ length: SH }, () => Array(SW).fill(" "))
+  const scol: string[][] = Array.from({ length: SH }, () => Array(SW).fill(WHITE))
   const set = (x: number, y: number, ch: string) => {
     if (y >= 0 && y < SH && x >= 0 && x < SW) sc[y][x] = ch
   }
@@ -240,7 +233,7 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   right(top[2] + BW - 1, ty + 1, 3); right(top[2] + BW - 1, ty + 2, 2)
   down(top[2] + 7, ty + BH - 1, 1); down(top[2] + 13, ty + BH - 1, 1)
 
-  const BW2 = 30, by = 12
+  const BW2 = 30, by = 13
   const bot = [4, 37]
   for (const x of bot) sbox(x, by, BW2, BH)
   up(bot[0] + 6, by, 1); up(bot[0] + 20, by, 1)
@@ -250,7 +243,35 @@ export function buildScene(r: CliRenderer, state: SceneState) {
   right(bot[1] + BW2 - 1, by + 1, 3); right(bot[1] + BW2 - 1, by + 2, 2)
   down(bot[1] + 10, by + BH - 1, 2); down(bot[1] + 20, by + BH - 1, 1)
 
-  for (let y = 0; y < SH; y++) grid.add(txt(r, sc[y].join(""), WHITE))
+  // "SPONSORED BY:" centered in the gap between the two rows, letter-spaced and
+  // red; nudge any letter that lands on a wire to an adjacent free cell.
+  const spaced = "SPONSORED BY:".split("").join(" ")
+  const labelY = 10
+  const startX = Math.floor((SW - spaced.length) / 2)
+  for (let i = 0; i < spaced.length; i++) {
+    const ch = spaced[i]
+    if (ch === " ") continue
+    let x = startX + i
+    if (sc[labelY][x] !== " ") {
+      if (sc[labelY][x - 1] === " ") x -= 1
+      else if (sc[labelY][x + 1] === " ") x += 1
+    }
+    sc[labelY][x] = ch
+    scol[labelY][x] = theme.red
+  }
+
+  // render each row, grouping consecutive same-color cells into spans
+  for (let y = 0; y < SH; y++) {
+    const rowBox = new BoxRenderable(r, { flexDirection: "row", width: SW })
+    grid.add(rowBox)
+    let x = 0
+    while (x < SW) {
+      const col = scol[y][x]
+      let run = ""
+      while (x < SW && scol[y][x] === col) { run += sc[y][x]; x++ }
+      rowBox.add(txt(r, run, col))
+    }
+  }
 
   return root
 }
@@ -284,7 +305,7 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   rule()
 
   // ---- scene canvas ----
-  const H = 12
+  const H = 15
   const chars: string[][] = Array.from({ length: H }, () => Array(W).fill(" "))
   const colors: string[][] = Array.from({ length: H }, () => Array(W).fill(""))
   const stamp = (art: string[], top: number, left: number, color: string) => {
@@ -314,8 +335,14 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   // moon-"C", top-right
   stamp(MOON_ASCII, 0, W - 16, GRAY_MOON)
 
-  // mascot: the prowling cougar, bottom-left (replaces the Claude character)
-  stamp(COUGAR_PROWL_ASCII, H - COUGAR_PROWL_ASCII.length, 3, theme.red)
+  // bottom framing rule drawn INTO the canvas, so the cougar's legs can hang
+  // below it (outside the "box"). Cat is stamped after, crossing/below the rule.
+  const ruleY = 11
+  for (let x = 0; x < W; x++) { chars[ruleY][x] = "·"; colors[ruleY][x] = GRAY_DIM }
+
+  // mascot: the draped cougar, bottom-left — body rests on the rule, legs dangle
+  // below it (replaces the Claude character).
+  stamp(COUGAR_DRAPED_ASCII, 4, 3, theme.red)
 
   // render each canvas row, grouping consecutive same-color cells into spans
   for (let y = 0; y < H; y++) {
@@ -332,6 +359,4 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
       rowBox.add(txt(r, run, col || GRAY_DIM))
     }
   }
-
-  rule()
 }
