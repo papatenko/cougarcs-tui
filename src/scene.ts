@@ -282,9 +282,9 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   const W = contentWidth
   const GRAY_STAR = "#9a9a9a"
   const GRAY_CLOUD = "#5f5f5f"
-  const GRAY_MOON = "#05acf6" // info-sec blue
+  const GRAY_MOON = "#6f4feb" // web-dev purple
   const GRAY_DIM = "#8a8a8a"
-  const TOP_RULE = "#6f4feb" // web-dev purple
+  const TOP_RULE = "#05acf6" // info-sec blue
   const BOTTOM_RULE = "#10c054" // tutor green
 
   const back = new BoxRenderable(r, {
