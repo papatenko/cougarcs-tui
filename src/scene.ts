@@ -6,7 +6,12 @@ import { BoxRenderable, TextRenderable, RGBA, type CliRenderer } from "@opentui/
 import { theme } from "./theme"
 import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH } from "./config"
 import { WORDMARK } from "./wordmark"
-import { SPRITE_MAIN } from "./sprite"
+import {
+  COUGAR_PROWL_ASCII,
+  MOON_ASCII,
+  CLOUD_LARGE_ASCII,
+  CLOUD_SMALL_ASCII,
+} from "./sprite"
 
 // Fully transparent fill: the terminal / shirt colour shows through.
 const TRANSPARENT = RGBA.fromValues(0, 0, 0, 0)
@@ -174,9 +179,12 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     width: BODY_W,
   }))
 
-  // ---- sponsor grid below the main terminal composition ----
+  // ---- BACK OF SHIRT: a CougarCS-ified Claude Code welcome screen ----
+  buildBackSection(r, root, contentWidth)
+
+  // ---- sponsor grid, below both shirt designs ----
   const WHITE = "#ffffff"
-  const GRID_GAP = 2
+  const GRID_GAP = 1 // gap between boxes in a row, and between the two rows
   const CELL_H = 4
   function gridRow(count: number) {
     const row = new BoxRenderable(r, { flexDirection: "row", width: contentWidth, gap: GRID_GAP })
@@ -203,15 +211,11 @@ export function buildScene(r: CliRenderer, state: SceneState) {
     flexDirection: "row",
     justifyContent: "center",
     width: contentWidth,
-    paddingBottom: 1,
   })
   grid.add(sponsorLabel)
   sponsorLabel.add(txt(r, "SPONSORED BY:", WHITE))
   grid.add(gridRow(3))
   grid.add(gridRow(2))
-
-  // ---- BACK OF SHIRT: a CougarCS-ified Claude Code welcome screen ----
-  buildBackSection(r, root, contentWidth)
 
   return root
 }
@@ -264,41 +268,19 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
 
   // stars
   const STARS: [number, number][] = [
-    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [11, 44], [12, 18],
+    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [11, 44], [12, 34],
   ]
   for (const [y, x] of STARS) stamp(["*"], y, x, GRAY_STAR)
 
-  // clouds (stepped light-shade blocks)
-  const CLOUD_A = [
-    "        ░░░░░░        ",
-    "     ░░░░░░░░░░░░     ",
-    "  ░░░░░░░░░░░░░░░░░░  ",
-    "░░░░░░░░░░░░░░░░░░░░░░",
-  ]
-  const CLOUD_B = [
-    "      ░░░░░░      ",
-    "   ░░░░░░░░░░░░   ",
-    "░░░░░░░░░░░░░░░░░░",
-  ]
-  stamp(CLOUD_A, 2, 3, GRAY_CLOUD)
-  stamp(CLOUD_B, 8, 24, GRAY_CLOUD)
+  // clouds
+  stamp(CLOUD_LARGE_ASCII, 2, 4, GRAY_CLOUD)
+  stamp(CLOUD_SMALL_ASCII, 8, 26, GRAY_CLOUD)
 
-  // moon-"C": a dithered crescent, top-right (reads as the CougarCS "C")
-  const MOON = [
-    "    ▒▒▒▒▒▒▒▒    ",
-    "  ▒▒░░░░░░░░▒▒  ",
-    " ▒▒░░░░          ",
-    "▒▒░░░░           ",
-    "▒▒░░░░           ",
-    "▒▒░░░░           ",
-    " ▒▒░░░░          ",
-    "  ▒▒░░░░░░░░▒▒  ",
-    "    ▒▒▒▒▒▒▒▒    ",
-  ]
-  stamp(MOON, 0, W - 17, GRAY_MOON)
+  // moon-"C", top-right
+  stamp(MOON_ASCII, 0, W - 16, GRAY_MOON)
 
-  // mascot: the CougarCS cougar, bottom-left (replaces the Claude character)
-  stamp(SPRITE_MAIN, H - SPRITE_MAIN.length, 3, theme.red)
+  // mascot: the prowling cougar, bottom-left (replaces the Claude character)
+  stamp(COUGAR_PROWL_ASCII, H - COUGAR_PROWL_ASCII.length, 3, theme.red)
 
   // render each canvas row, grouping consecutive same-color cells into spans
   for (let y = 0; y < H; y++) {

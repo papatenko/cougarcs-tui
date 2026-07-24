@@ -1,5 +1,8 @@
 # cougarcs-tui
 
+> **Latest render → [`renders/cougarcs-tui.png`](renders/cougarcs-tui.png)**
+> (regenerate with `bun run capture`)
+
 A terminal-aesthetic "cougarcs.agent" mockup for the CougarCS shirt design — a
 Claude-Code-style chat where a prompt triggers the agent "deploying the four
 branches," shown as the four CougarCS branch mascots rendered as **real font
@@ -7,9 +10,8 @@ glyphs** (not ASCII art) that light up one by one.
 
 ## Current render
 
-The latest generated design lives at **[`renders/cougarcs-tui.png`](renders/cougarcs-tui.png)**
-— regenerate it with `bun run capture`. The top half is the shirt **front**; the
-section below the sponsor grid is the shirt **back**.
+The top half is the shirt **front**; the section below the sponsor grid is the
+shirt **back**.
 
 ![Current CougarCS TUI render](renders/cougarcs-tui.png)
 
