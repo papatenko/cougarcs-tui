@@ -131,17 +131,17 @@ export const COUGAR_WALK_ASCII_WIDTH = 35
 // body lies horizontal, legs dangle below with a leftward curve, tail trails off
 // the right rear. Meant to sit at the bottom so the legs hang past the frame.
 export const COUGAR_DRAPED_ASCII: string[] = art(String.raw`
-        z
-      z
-         z
        z
-      /\_/\ __---.__.
-     ( -.- )        ''-+
-    _/           _.._   )
-   (  |_____|  |_)   \  \
-   / /      /  /      |  |
-   (#-)     (#-)     /  /
-                    (==)
+     z
+        z
+      z  __..--'''''''----..__
+   /\_/\/                     \
+  ( - - )                      \
+   \_|_/'''(~~.-------.~~~~~/\~~\
+            \  \      (    /  |  |
+            /  /       \   |  (  (  (==)
+           /  /         \   \  \  \_/  |
+          (#-)           (# -)  \__.../
 `)
 export const COUGAR_DRAPED_ASCII_WIDTH = 37
 

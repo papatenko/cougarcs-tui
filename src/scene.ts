@@ -282,8 +282,10 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   const W = contentWidth
   const GRAY_STAR = "#9a9a9a"
   const GRAY_CLOUD = "#5f5f5f"
-  const GRAY_MOON = "#c8c8c8"
+  const GRAY_MOON = "#05acf6" // info-sec blue
   const GRAY_DIM = "#8a8a8a"
+  const TOP_RULE = "#6f4feb" // web-dev purple
+  const BOTTOM_RULE = "#10c054" // tutor green
 
   const back = new BoxRenderable(r, {
     flexDirection: "column",
@@ -298,23 +300,30 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   const welcome = new BoxRenderable(r, { flexDirection: "row", width: W })
   back.add(welcome)
   welcome.add(txt(r, "Welcome to CougarCS ", theme.red))
-  welcome.add(txt(r, "v0.1.0", GRAY_DIM))
+  welcome.add(txt(r, "v9.6.19", GRAY_DIM))
 
-  const rule = () => back.add(txt(r, "·".repeat(W), GRAY_DIM))
   back.add(txt(r, "", theme.dim, { height: 1 }))
-  rule()
+  back.add(txt(r, "·".repeat(W), TOP_RULE)) // top rule: web-dev purple
 
   // ---- scene canvas ----
-  const H = 15
+  const H = 16
   const chars: string[][] = Array.from({ length: H }, () => Array(W).fill(" "))
   const colors: string[][] = Array.from({ length: H }, () => Array(W).fill(""))
+  // In sprite art: a space is transparent (shows the background through), while
+  // "~" is an invisible blocker — it clears the cell (shows the shirt, draws
+  // nothing) so you can hand-mask out background dots/stars behind a sprite.
+  const BLANK = "~"
   const stamp = (art: string[], top: number, left: number, color: string) => {
     art.forEach((line, dy) => {
       for (let dx = 0; dx < line.length; dx++) {
         const ch = line[dx]
         const y = top + dy
         const x = left + dx
-        if (ch !== " " && y >= 0 && y < H && x >= 0 && x < W) {
+        if (ch === " " || y < 0 || y >= H || x < 0 || x >= W) continue
+        if (ch === BLANK) {
+          chars[y][x] = " "
+          colors[y][x] = ""
+        } else {
           chars[y][x] = ch
           colors[y][x] = color
         }
@@ -324,13 +333,13 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
 
   // stars
   const STARS: [number, number][] = [
-    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [10, 52], [11, 44],
+    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [10, 52], [11, 44],
   ]
   for (const [y, x] of STARS) stamp(["*"], y, x, GRAY_STAR)
 
   // clouds (shifted right)
-  stamp(CLOUD_LARGE_ASCII, 2, 12, GRAY_CLOUD)
-  stamp(CLOUD_SMALL_ASCII, 8, 36, GRAY_CLOUD)
+  stamp(CLOUD_LARGE_ASCII, 0, 12, GRAY_CLOUD)
+  stamp(CLOUD_SMALL_ASCII, 4, 36, GRAY_CLOUD)
 
   // moon-"C", top-right
   stamp(MOON_ASCII, 0, W - 16, GRAY_MOON)
@@ -338,11 +347,12 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   // bottom framing rule drawn INTO the canvas, so the cougar's legs can hang
   // below it (outside the "box"). Cat is stamped after, crossing/below the rule.
   const ruleY = 11
-  for (let x = 0; x < W; x++) { chars[ruleY][x] = "·"; colors[ruleY][x] = GRAY_DIM }
+  for (let x = 0; x < W; x++) { chars[ruleY][x] = "·"; colors[ruleY][x] = BOTTOM_RULE }
 
   // mascot: the draped cougar, bottom-left — body rests on the rule, legs dangle
-  // below it (replaces the Claude character).
-  stamp(COUGAR_DRAPED_ASCII, 4, 3, theme.red)
+  // below it (replaces the Claude character). Drawn as a plain overlay so the
+  // rule dots still show through the gaps between its legs, tail, and head.
+  stamp(COUGAR_DRAPED_ASCII, 5, 3, theme.red)
 
   // render each canvas row, grouping consecutive same-color cells into spans
   for (let y = 0; y < H; y++) {
