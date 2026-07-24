@@ -184,38 +184,73 @@ export function buildScene(r: CliRenderer, state: SceneState) {
 
   // ---- sponsor grid, below both shirt designs ----
   const WHITE = "#ffffff"
-  const GRID_GAP = 1 // gap between boxes in a row, and between the two rows
-  const CELL_H = 4
-  function gridRow(count: number) {
-    const row = new BoxRenderable(r, { flexDirection: "row", width: contentWidth, gap: GRID_GAP })
-    for (let i = 0; i < count; i++) {
-      row.add(new BoxRenderable(r, {
-        borderStyle: "rounded",
-        border: true,
-        borderColor: WHITE,
-        backgroundColor: TRANSPARENT,
-        flexGrow: 1,
-        height: CELL_H,
-      }))
-    }
-    return row
-  }
   const grid = new BoxRenderable(r, {
     flexDirection: "column",
     width: contentWidth,
     paddingTop: 1,
-    gap: GRID_GAP,
   })
   root.add(grid)
   const sponsorLabel = new BoxRenderable(r, {
     flexDirection: "row",
-    justifyContent: "center",
     width: contentWidth,
   })
   grid.add(sponsorLabel)
-  sponsorLabel.add(txt(r, "SPONSORED BY:", WHITE))
-  grid.add(gridRow(3))
-  grid.add(gridRow(2))
+  sponsorLabel.add(txt(r, "SPONSORED BY:", theme.red))
+  grid.add(txt(r, "", theme.dim, { height: 1 })) // gap between label and boxes
+
+  // Sponsor logos as an ASCII canvas: rounded boxes with circuit-style wires
+  // (traces off every side ending in ○ pads) drawn together for full control.
+  const SW = contentWidth
+  const SH = 22
+  const sc: string[][] = Array.from({ length: SH }, () => Array(SW).fill(" "))
+  const set = (x: number, y: number, ch: string) => {
+    if (y >= 0 && y < SH && x >= 0 && x < SW) sc[y][x] = ch
+  }
+  const sbox = (x: number, y: number, w: number, h: number) => {
+    set(x, y, "╭"); set(x + w - 1, y, "╮"); set(x, y + h - 1, "╰"); set(x + w - 1, y + h - 1, "╯")
+    for (let i = 1; i < w - 1; i++) { set(x + i, y, "─"); set(x + i, y + h - 1, "─") }
+    for (let j = 1; j < h - 1; j++) { set(x, y + j, "│"); set(x + w - 1, y + j, "│") }
+  }
+  const up = (x: number, y: number, n: number) => {
+    set(x, y, "┬"); for (let i = 1; i <= n; i++) set(x, y - i, "│"); set(x, y - n - 1, "○")
+  }
+  const down = (x: number, y: number, n: number) => {
+    set(x, y, "┴"); for (let i = 1; i <= n; i++) set(x, y + i, "│"); set(x, y + n + 1, "○")
+  }
+  const left = (x: number, y: number, n: number) => {
+    set(x, y, "┤"); for (let i = 1; i <= n; i++) set(x - i, y, "─"); set(x - n - 1, y, "○")
+  }
+  const right = (x: number, y: number, n: number) => {
+    set(x, y, "├"); for (let i = 1; i <= n; i++) set(x + i, y, "─"); set(x + n + 1, y, "○")
+  }
+
+  const BW = 19, BH = 5, ty = 3
+  const top = [4, 26, 48]
+  for (const x of top) sbox(x, ty, BW, BH)
+  // top box 1
+  up(top[0] + 3, ty, 2); up(top[0] + 9, ty, 1); up(top[0] + 14, ty, 2)
+  left(top[0], ty + 1, 2); left(top[0], ty + 2, 3)
+  down(top[0] + 5, ty + BH - 1, 1); down(top[0] + 12, ty + BH - 1, 1)
+  // top box 2
+  up(top[1] + 4, ty, 1); up(top[1] + 13, ty, 2)
+  right(top[1] + BW - 1, ty + 1, 2); right(top[1] + BW - 1, ty + 2, 3)
+  down(top[1] + 6, ty + BH - 1, 1); down(top[1] + 11, ty + BH - 1, 1)
+  // top box 3
+  up(top[2] + 4, ty, 2); up(top[2] + 10, ty, 1)
+  right(top[2] + BW - 1, ty + 1, 3); right(top[2] + BW - 1, ty + 2, 2)
+  down(top[2] + 7, ty + BH - 1, 1); down(top[2] + 13, ty + BH - 1, 1)
+
+  const BW2 = 30, by = 12
+  const bot = [4, 37]
+  for (const x of bot) sbox(x, by, BW2, BH)
+  up(bot[0] + 6, by, 1); up(bot[0] + 20, by, 1)
+  left(bot[0], by + 1, 2); left(bot[0], by + 2, 3)
+  down(bot[0] + 9, by + BH - 1, 1); down(bot[0] + 18, by + BH - 1, 2)
+  up(bot[1] + 8, by, 1); up(bot[1] + 22, by, 1)
+  right(bot[1] + BW2 - 1, by + 1, 3); right(bot[1] + BW2 - 1, by + 2, 2)
+  down(bot[1] + 10, by + BH - 1, 2); down(bot[1] + 20, by + BH - 1, 1)
+
+  for (let y = 0; y < SH; y++) grid.add(txt(r, sc[y].join(""), WHITE))
 
   return root
 }
@@ -249,7 +284,7 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   rule()
 
   // ---- scene canvas ----
-  const H = 14
+  const H = 12
   const chars: string[][] = Array.from({ length: H }, () => Array(W).fill(" "))
   const colors: string[][] = Array.from({ length: H }, () => Array(W).fill(""))
   const stamp = (art: string[], top: number, left: number, color: string) => {
@@ -268,13 +303,13 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
 
   // stars
   const STARS: [number, number][] = [
-    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [11, 44], [12, 34],
+    [1, 6], [2, 40], [3, 22], [5, 12], [6, 48], [8, 2], [9, 34], [10, 52], [11, 44],
   ]
   for (const [y, x] of STARS) stamp(["*"], y, x, GRAY_STAR)
 
-  // clouds
-  stamp(CLOUD_LARGE_ASCII, 2, 4, GRAY_CLOUD)
-  stamp(CLOUD_SMALL_ASCII, 8, 26, GRAY_CLOUD)
+  // clouds (shifted right)
+  stamp(CLOUD_LARGE_ASCII, 2, 12, GRAY_CLOUD)
+  stamp(CLOUD_SMALL_ASCII, 8, 36, GRAY_CLOUD)
 
   // moon-"C", top-right
   stamp(MOON_ASCII, 0, W - 16, GRAY_MOON)
