@@ -67,6 +67,21 @@ export const COUGAR_LEAP_BLOCK_WIDTH = 20
 // String.raw keeps backslashes literal, so the source reads like the render.
 const art = (s: string): string[] => s.split("\n").slice(1, -1)
 
+// The CougarCS logo head, same silhouette as SPRITE_MAIN but filled with
+// characters instead of blocks: # is a solid cell, % a half/edge cell.
+export const SPRITE_MAIN_ASCII: string[] = art(String.raw`
+###%        %###
+#####%%%%%%#####
+%##############%
+ ##############
+ ### %####% ###
+ %###%####%###%
+  %###%%%%###%
+    ##%  %##
+     %####%
+`)
+export const SPRITE_MAIN_ASCII_WIDTH = 16
+
 // Standing side profile.
 export const COUGAR_STAND_ASCII: string[] = art(String.raw`
     /\_/\
@@ -137,13 +152,27 @@ export const COUGAR_DRAPED_ASCII: string[] = art(String.raw`
       z  __..--'''''''----..__
    /\_/\/                     \
   ( - - )                      \
-   \_|_/'''(~~.-------.~~~~~/\~~\
+   \_|_/'''(88.-------.88888/\88\
             \  \      (    /  |  |
             /  /       \   |  (  (  (==)
            /  /         \   \  \  \_/  |
           (#-)           (# -)  \__.../
 `)
+export const COUGAR_DRAPED_ASCII_LONDON: string[] = art(String.raw`
+       z
+     z
+        z
+      z  __..--'''''''----..__
+   /\_/\/ ~       ~      ~    \
+  ( - - )     ~       ~    /\ \
+   \_^_/''(__/8/.-----.888/  |8|  (=)
+            / /        | |   \ \./ /
+            \_\         \_\   \__../
+
+
+`)
 export const COUGAR_DRAPED_ASCII_WIDTH = 37
+
 
 // ---------------------------------------------------------------------------
 // Night scenery for the back design — used by the back section in scene.ts.

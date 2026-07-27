@@ -7,7 +7,7 @@ import { theme } from "./theme"
 import { agents, copy, layout, tileRow, TILE_G, CAT_GLYPH } from "./config"
 import { WORDMARK } from "./wordmark"
 import {
-  COUGAR_DRAPED_ASCII,
+  COUGAR_DRAPED_ASCII_LONDON,
   MOON_ASCII,
   CLOUD_LARGE_ASCII,
   CLOUD_SMALL_ASCII,
@@ -310,9 +310,9 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   const chars: string[][] = Array.from({ length: H }, () => Array(W).fill(" "))
   const colors: string[][] = Array.from({ length: H }, () => Array(W).fill(""))
   // In sprite art: a space is transparent (shows the background through), while
-  // "~" is an invisible blocker — it clears the cell (shows the shirt, draws
+  // "8" is an invisible blocker — it clears the cell (shows the shirt, draws
   // nothing) so you can hand-mask out background dots/stars behind a sprite.
-  const BLANK = "~"
+  const BLANK = "8"
   const stamp = (art: string[], top: number, left: number, color: string) => {
     art.forEach((line, dy) => {
       for (let dx = 0; dx < line.length; dx++) {
@@ -352,7 +352,7 @@ function buildBackSection(r: CliRenderer, root: BoxRenderable, contentWidth: num
   // mascot: the draped cougar, bottom-left — body rests on the rule, legs dangle
   // below it (replaces the Claude character). Drawn as a plain overlay so the
   // rule dots still show through the gaps between its legs, tail, and head.
-  stamp(COUGAR_DRAPED_ASCII, 5, 3, theme.red)
+  stamp(COUGAR_DRAPED_ASCII_LONDON, 5, 3, theme.red)
 
   // render each canvas row, grouping consecutive same-color cells into spans
   for (let y = 0; y < H; y++) {
